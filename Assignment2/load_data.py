@@ -18,8 +18,8 @@ def load_data(N):
         test: An array of size D X number of points in the test set.
         vocab: Vocabulary containing indes to word mapping.
     """
-
-    data = loadmat('data.mat')
+    
+    data = loadmat('C:/Users/kaoa/Downloads/assignment2/assignment2/data.mat')
     numdims = data['data']['trainData'][0][0].shape[0]
     D = numdims - 1
     M = int(np.floor(data['data']['trainData'][0][0].shape[1]/N))
