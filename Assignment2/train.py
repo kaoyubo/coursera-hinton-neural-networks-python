@@ -33,6 +33,7 @@ def train(epochs):
      test_input, 
      test_target, 
      vocab] = load_data(batchsize)
+
     [numwords, batchsize, numbatches] = train_input.shape 
     vocab_size = len(vocab)
 
@@ -56,7 +57,7 @@ def train(epochs):
 
     # TRAIN.
     for epoch in range(epochs):
-        print('Epoch'.format(epoch))
+        print('Epoch {}'.format(epoch+1))
         this_chunk_CE = 0
         trainset_CE = 0
         # LOOP OVER MINI-BATCHES.
@@ -73,11 +74,12 @@ def train(epochs):
                                          word_embedding_weights, 
                                          embed_to_hid_weights, 
                                          hid_to_output_weights, 
-                                         hid_bias, output_bias)
+                                         hid_bias, 
+                                         output_bias)
     
             # COMPUTE DERIVATIVE.
             ## Expand the target to a sparse 1-of-K vector.
-            expanded_target_batch = expansion_matrix[:, target_batch.flatten()-1]
+            expanded_target_batch = expansion_matrix[:, target_batch.flatten()]
             ## Compute derivative of cross-entropy loss function.
             error_deriv = output_layer_state - expanded_target_batch
     
@@ -87,9 +89,10 @@ def train(epochs):
             count += 1
             this_chunk_CE = this_chunk_CE + (CE - this_chunk_CE) / count
             trainset_CE = trainset_CE + (CE - trainset_CE) / (m + 1)
-            print('\rBatch {0:d} Train CE {1:.3f}'.format(m, this_chunk_CE))
+            
+            
             if m % show_training_CE_after == 0:
-                print('\n')
+                print('Batch {0:d} Train CE {1:.3f}'.format(m, this_chunk_CE))
                 count = 0;
                 this_chunk_CE = 0;
         
@@ -136,7 +139,7 @@ def train(epochs):
             for w in range(numwords):
                 
                 a = back_propagated_deriv_2[w*numhid1:(w + 1)*numhid1, :].T
-                b = expansion_matrix[:, input_batch[w, :]-1] 
+                b = expansion_matrix[:, input_batch[w, :]] 
                 word_embedding_weights_gradient += np.dot(b, a)
     
         
@@ -163,7 +166,6 @@ def train(epochs):
         
             # VALIDATE.
             if m % show_validation_CE_after == 0:
-                print('\rRunning validation ...')
                 [embedding_layer_state, 
                  hidden_layer_state, 
                  output_layer_state] = fprop(valid_input, 
@@ -173,19 +175,17 @@ def train(epochs):
                                              hid_bias, 
                                              output_bias)
                 datasetsize = valid_input.shape[1]
-                expanded_valid_target = expansion_matrix[:, valid_target-1]
+                expanded_valid_target = expansion_matrix[:, valid_target]
                 CE = -np.sum(expanded_valid_target * np.log(output_layer_state + tiny)) / datasetsize
-                print(' Validation CE {:.3f}\n'.format(CE))
+                print('Running validation ... Validation CE {:.3f}'.format(CE))
     
-            print('\rAverage Training CE {:.3f}\n'.format(trainset_CE))
+                print('Average Training CE {:.3f}'.format(trainset_CE))
 
-    print('Finished Training.\n')
+    print('Finished Training.')
     
-    print('Final Training CE {:.3f}\n'.format(trainset_CE))
+    print('Final Training CE {:.3f}'.format(trainset_CE))
     
     # EVALUATE ON VALIDATION SET.
-    print('\rRunning validation ...');
-    
     [embedding_layer_state, 
      hidden_layer_state, 
      output_layer_state] = fprop(valid_input, 
@@ -194,13 +194,12 @@ def train(epochs):
                                  hid_to_output_weights, 
                                  hid_bias, output_bias)
     datasetsize = valid_input.shape[1]
-    expanded_valid_target = expansion_matrix[:, valid_target-1]
+    expanded_valid_target = expansion_matrix[:, valid_target]
     CE = -np.sum(expanded_valid_target * np.log(output_layer_state + tiny)) / datasetsize
-    print('\rFinal Validation CE {:.3f}\n'.format(CE))
+    print('Running validation ... Final Validation CE {:.3f}'.format(CE))
     
     
     # EVALUATE ON TEST SET.
-    print('\rRunning test ...')
     [embedding_layer_state, 
      hidden_layer_state, 
      output_layer_state] = fprop(test_input, 
@@ -210,9 +209,9 @@ def train(epochs):
                                  hid_bias, 
                                  output_bias)
     datasetsize = test_input.shape[1]
-    expanded_test_target = expansion_matrix[:, test_target-1] 
+    expanded_test_target = expansion_matrix[:, test_target] 
     CE = -np.sum(expanded_test_target * np.log(output_layer_state + tiny)) / datasetsize
-    print('\rFinal Test CE {:.3f}\n'.format(CE))
+    print('Running test ... Final Test CE {:.3f}'.format(CE))
     
     model = {}
     model['word_embedding_weights'] = word_embedding_weights
@@ -226,7 +225,7 @@ def train(epochs):
     end_time = time.time()
     diff = end_time - start_time
     
-    print('Training took {:.2f} seconds\n'.format(diff))
+    print('Training took {:.2f} seconds'.format(diff))
     
     
     

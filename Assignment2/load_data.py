@@ -37,7 +37,14 @@ def load_data(N):
     test_target = test_data[D, :]
 
     vocab = data['data']['vocab'][0][0][0]
-
+     
+    train_input -= 1
+    train_target -= 1
+    valid_input -= 1
+    valid_target -= 1
+    test_input -= 1
+    test_target -= 1
+     
     return (train_input, 
             train_target, 
             valid_input, 

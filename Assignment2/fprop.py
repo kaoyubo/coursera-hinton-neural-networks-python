@@ -44,7 +44,7 @@ def fprop(input_batch, word_embedding_weights, embed_to_hid_weights,
     ## COMPUTE STATE OF WORD EMBEDDING LAYER
     # Look up the inputs word indices in the word_embedding_weights matrix
     flattened_input = np.reshape(input_batch, (1, -1), order='F')
-    lookup_input_weights = word_embedding_weights[flattened_input-1, :]
+    lookup_input_weights = word_embedding_weights[flattened_input, :]
     embedding_layer_state = np.reshape(lookup_input_weights, 
                                        (numhid1*numwords, -1), 
                                        order='F')
@@ -73,9 +73,9 @@ def fprop(input_batch, word_embedding_weights, embed_to_hid_weights,
     # Options
     # (a) 
     inputs_to_softmax = np.dot(hid_to_output_weights.T, hidden_layer_state) + np.tile(output_bias, (1, batchsize))
-    # (b) inputs_to_softmax = hid_to_output_weights' * hidden_layer_state +  repmat(output_bias, batchsize, 1);
-    # (c) inputs_to_softmax = hidden_layer_state * hid_to_output_weights' +  repmat(output_bias, 1, batchsize);
-    # (d) inputs_to_softmax = hid_to_output_weights * hidden_layer_state +  repmat(output_bias, batchsize, 1);
+    # (b) inputs_to_softmax = np.dot(hid_to_output_weights.T, hidden_layer_state) +  np.tile(output_bias, (batchsize, 1))
+    # (c) inputs_to_softmax = np.dot(hidden_layer_state, hid_to_output_weights.T) +  np.tile(output_bias, (1, batchsize))
+    # (d) inputs_to_softmax = np.dot(hid_to_output_weights, hidden_layer_state) +  np.tile(output_bias, (batchsize, 1))
 
     
     # Subtract maximum. 
